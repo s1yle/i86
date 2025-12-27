@@ -7,7 +7,7 @@
 
 ## 📖 About This Repository
 
-- This repository is based on the classic open-source project **[os-dev](https://github.com/user/os-dev)** and is further developed upon it.
+- This repository is based on the classic open-source project **([https://github.com/user/os-dev](https://github.com/cfenollosa/os-tutorial))** and is further developed upon it.
 - **All code in this repository is intended for learning purposes only.**
 
 ## 🚀 Future Goals
