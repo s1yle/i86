@@ -1,5 +1,5 @@
 #include "game.h"
-
+#include "spawn.h"
 void tertris_game_init() {
 	// disable keyboard
 	KEYBOARD_TERTRIS = 0x01;
@@ -7,7 +7,9 @@ void tertris_game_init() {
 	// setting border and game region
 	clear_screen();
 	tertris_draw_border();	
-	
+
+	position p = { 10, 10 };
+	spawn_item(&p);
 }
 
 
@@ -27,7 +29,7 @@ void tertris_draw_border() {
 				int_to_ascii(row, msg_row);
 				char* msg;
 				int_to_ascii(col, msg);
-				kprint_at("|", col, row);
+				kprint_at(msg_row, col, row);
 			}
 
 			if(col == MAX_COLS - 1) {
