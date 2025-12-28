@@ -4,6 +4,7 @@
 #include "../libc/string.h"
 #include "../libc/mem.h"
 #include <stdint.h>
+#include "../tertris/game.h"
 
 void kernel_main() {
     isr_install();
@@ -14,6 +15,9 @@ void kernel_main() {
 
     kprint("Type something, it will go through the kernel\n"
         "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
+
+
+    tertris_game_init();
 }
 
 void user_input(char *input) {
@@ -33,8 +37,13 @@ void user_input(char *input) {
         kprint(", physical address: ");
         kprint(phys_str);
         kprint("\n");
+    } else if (strcmp(input, "TERTRIS") == 0) {
+	tertris_game_init();
     }
+
+    /*
     kprint("You said: ");
     kprint(input);
     kprint("\n> ");
+    */
 }
