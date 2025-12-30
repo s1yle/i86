@@ -1,6 +1,8 @@
 #ifndef SPAWN_H
 #define SPAWN_H
 
+#include "../cpu/types.h"
+
 typedef struct Position {
 	int x;
 	int y;
@@ -18,6 +20,9 @@ typedef enum {
     SHAPE_COUNT
 } shape_type;
 
+#define SHAPE_GRID_HEIGHT 4  // grid heigh (rows)
+#define SHAPE_GRID_WIDTH 4   // grid with  (cols)
+
 /* Shape structure */
 typedef struct {
     shape_type type;
@@ -26,10 +31,8 @@ typedef struct {
 } shape;
 
 /* Function prototypes */
-void spawn_item(position *p);
-void draw_square(position *p, int size);
-void draw_shape(shape *s);
-shape create_shape(shape_type type, int x, int y);
+void spawn_item(shape_type t,position *p);
 void rotate_shape(shape *s, int clockwise);
+uint8_t get_width(shape_type t);
 
 #endif
