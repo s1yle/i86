@@ -1,11 +1,14 @@
 #include "game.h"
-#include "spawn.h"
+#include "../cpu/timer.h"
+#include "../libc/xorshift32.h"
 
 int width_min = MAX_COLS/4;
 int width_max = (MAX_COLS/2*1.5);
 
-/* Function prototype */
+static game_data_t gd;
 void tertris_draw_border();
+static uint32_t *rand = NULL;
+static uint8_t tick = 0;
 
 void tertris_game_init() {
 	// disable keyboard
@@ -13,7 +16,46 @@ void tertris_game_init() {
 
 	// setting border and game region
 	clear_screen();
-	tertris_draw_border();	
+	tertris_draw_border();
+	rand = prng_next();
+
+	add_timer(1, tertris_game_update, 1);
+}
+
+void tertris_game_update() {
+	tick++;
+
+	if(tick >= 50) {
+		// game update on every tick
+		rand = prng_next();
+		char str; int_to_ascii(rand,str);
+		kprint_at(str,0,0);
+
+		if(gd.manipulate_item != NULL) {
+			// already spawned
+		} else if (gd.manipulate_item == NULL) {
+			// havnt spawned yet
+			position p; 
+			p.x = prng_next_mod(width_min, width_max);
+			p.y = 0;
+
+			uint8_t sindex = prng_next_mod(0, SHAPE_COUNT);
+			spawn_item((shape_type)sindex, &p);
+
+			char str; int_to_ascii(p.x, str);
+			kprint_at(&str,0,1);
+		}
+
+		tick = 0;
+	}
+}
+
+void tertris_control(uint8_t scancode) {
+
+}
+
+void tertris_spawn() {
+	
 }
 
 void test_spawn_item() {
@@ -94,9 +136,6 @@ void tertris_draw_border() {
 }
 
 
-void tertris_control(uint8_t scancode) {
-
-}
 
 
 

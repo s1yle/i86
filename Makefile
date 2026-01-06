@@ -8,11 +8,11 @@ HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.c ./tertris/*.h)
 # Nice syntax for file extension replacement
 OBJ = ${C_SOURCES:.c=.o cpu/interrupt.o}
 
-CC = ~/Desktop/opt/cross/bin/i386-elf-gcc
-GDB = ~/Desktop/opt/cross/bin/i386-elf-gdb
-LD = ~/Desktop/opt/cross/bin/i386-elf-ld
+CC = ~/opt/cross/bin/i386-elf-gcc
+GDB = ~/opt/cross/bin/i386-elf-gdb
+LD = ~/opt/cross/bin/i386-elf-ld
 
-CFLAGS = -g -m32 -ffreestanding -fno-exceptions -Wall -Wextra 
+CFLAGS = -g -m32 -ffreestanding -fno-exceptions -Wall -Wextra -std=c99
 
 # First rule is run by default
 os-image.bin: boot/bootsect.bin kernel.bin

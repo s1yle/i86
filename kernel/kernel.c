@@ -5,25 +5,28 @@
 #include "../libc/mem.h"
 #include <stdint.h>
 #include "../tertris/game.h"
+#include "../libc/xorshift32.h"
+
+static uint32_t rand_seed = 20060426;
 
 void kernel_main() {
     isr_install();
     irq_install();
 
-    asm("int $2");
-    asm("int $3");
+    __asm__("int $2");
+    __asm__("int $3");
 
     kprint("Type something, it will go through the kernel\n"
         "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
 
-
-    tertris_game_init();
+    prng_seed(rand_seed);
+    //tertris_game_init();
 }
 
 void user_input(char *input) {
     if (strcmp(input, "END") == 0) {
         kprint("Stopping the CPU. Bye!\n");
-        asm volatile("hlt");
+        __asm__ __volatile__("hlt");
     } else if (strcmp(input, "PAGE") == 0) {
         /* Lesson 22: Code to test kmalloc, the rest is unchanged */
         uint32_t phys_addr;
@@ -38,7 +41,7 @@ void user_input(char *input) {
         kprint(phys_str);
         kprint("\n");
     } else if (strcmp(input, "TERTRIS") == 0) {
-	tertris_game_init();
+        tertris_game_init();
     }
 
     /*

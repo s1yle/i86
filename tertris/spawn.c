@@ -129,7 +129,6 @@ void spawn_item(shape_type t, position *p) {
         adjusted_pos.y = 0;
     }
 
-
     /* 根据形状类型调用相应的绘制函数 */
     switch (t) {
         case SHAPE_T:
