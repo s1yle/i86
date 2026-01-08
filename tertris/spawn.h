@@ -30,9 +30,17 @@ typedef struct {
     position pos;
 } shape;
 
-/* Function prototypes */
+
 void spawn_item(shape_type t,position *p, shape *output_shape);
 void rotate_shape(shape *s, int clockwise);
 uint8_t get_width(shape_type t);
+
+//check if it's manipulable
+bool can_move(shape *s, int dx, int dy);
+bool can_rotate(shape *s);
+bool check_collision(shape *s);
+
+void clear_shape_display(shape *s);
+void redraw_shape(shape *s);
 
 #endif

@@ -14,6 +14,12 @@ typedef	unsigned char	u8;
 typedef		 char	s8;
 */
 
+
+typedef enum enum_bool {
+    FALSE,
+    TRUE
+} bool;  // bool  1 or 0
+
 #define low_16(address) (uint16_t)((address) & 0xFFFF)
 #define high_16(address) (uint16_t)(((address) >> 16) & 0xFFFF)
 

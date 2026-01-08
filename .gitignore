@@ -6,5 +6,5 @@ drivers/*.o
 kernel/*.o
 libc/*.o
 tertris/*.o
-
+*.elf
 *.bin

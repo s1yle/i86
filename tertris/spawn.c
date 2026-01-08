@@ -1,6 +1,7 @@
 #include "spawn.h"
 #include "../drivers/screen.h"
 #include "game.h"
+#include "../libc/mem.h"
 
 void draw_square(position *p, int size);
 void draw_shape(shape *s);
@@ -79,6 +80,7 @@ static const int shapes[SHAPE_COUNT][SHAPE_GRID_HEIGHT][SHAPE_GRID_WIDTH] = {
 };
 
 #ifdef FALSE
+// get the shape's horizontal width
 uint8_t get_width(shape_type t) {
     int temp[4] = {-1, -1, -1, -1};
     uint8_t wid = 0;
@@ -94,7 +96,6 @@ uint8_t get_width(shape_type t) {
 
     return wid;
 }
-#else
 #endif
 
 uint8_t get_width(shape_type t) {
@@ -188,7 +189,7 @@ void draw_sZ(position *p) {
     draw_shape(&s);
 }
 
-/*
+#ifdef FALSE
 void draw_square(position *p, int size) {
     char block[] = {'█', 0};
     char hash[] = "#";
@@ -205,7 +206,92 @@ void draw_square(position *p, int size) {
         kprint_at(hash, p->x + size - 1, vertical);
     }
 }
-*/
+#else
+#endif
+
+void fix_current_shape() {
+    if (gd.manipulate_item == NULL) return;
+
+	shape *s = gd.manipulate_item;
+    const int (*shape_grid)[4] = shapes[s->type];
+
+	for(int y = 0; y < 4; y++) {
+		for (int x = 0; x < 4; x++) {
+            if(shape_grid[y][x]) {
+                int world_x = s->pos.x + x;
+                int world_y = s->pos.y + y;
+
+                shape *block = (shape *)kmalloc(sizeof(shape), 0, NULL);
+                block->type = s->type;
+                block->rotation = s->rotation;
+                block->pos.x = world_x;
+                block->pos.y = world_y;
+
+                gd.fixed_item[world_y][world_x] = block;
+
+                char block_char[] = {'#', 0};
+                kprint_at(block_char, world_x, world_y);
+            }
+        }
+	}
+    kfree(gd.manipulate_item, sizeof(shape));
+    gd.manipulate_item = NULL;
+}
+
+bool can_move(shape *s, int dx, int dy) {
+	if(!s) return FALSE;
+	
+	position new_pos = s->pos;
+	new_pos.x += dx;
+	new_pos.y += dy;
+
+	const int (*shape_grid)[4] = shapes[s->type];
+
+	for(int y = 0; y < 4; y++) {
+        for(int x = 0; x < 4; x++) {
+            if(shape_grid[y][x]) {
+                int world_x = new_pos.x + x;
+                int world_y = new_pos.y + y;
+
+                if(world_x < width_min + 1 || world_x >= width_max - 1) {
+                    return FALSE;
+                } 
+
+                if(world_y >= border_height - 1) {
+                    return FALSE;
+                }
+
+                if (gd.fixed_item[world_y][world_x] != NULL) {
+                    return FALSE;
+                }
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+
+// clear the displaying shape 
+void clear_shape_display(shape *s) {
+    char block[] = {' ', 0};  /* Create null-terminated string */
+    const int (*shape_grid)[SHAPE_GRID_HEIGHT] = shapes[s->type];
+    
+    for (int y = 0; y < SHAPE_GRID_WIDTH; y++) {
+        for (int x = 0; x < SHAPE_GRID_HEIGHT; x++) {
+            if (shape_grid[y][x]) {
+                int screen_x = s->pos.x + x;
+                int screen_y = s->pos.y + y;
+                kprint_at(block, screen_x, screen_y);
+            }
+        }
+    }
+}
+
+// simply redraw the shape
+void redraw_shape(shape *s) {
+    draw_shape(s);
+}
 
 void draw_shape(shape *s) {
     char block[] = {'#', 0};  /* Create null-terminated string */
