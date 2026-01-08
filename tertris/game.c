@@ -3,6 +3,7 @@
 #include "../libc/xorshift32.h"
 #include "../libc/mem.h"
 #include "test.h"
+#include "../drivers/keyboard.h"
 
 
 int width_min = MAX_COLS/4;
@@ -66,12 +67,44 @@ void tertris_game_update() {
 #else
 #endif
 
+void game_parsekey(uint8_t scancode) {
+	char letter = get_letter(scancode);
+
+	switch (letter)
+	{
+	case 'A':
+		kprint_at("             ", 0, 3);
+		kprint_at("A Pressed", 0, 3);
+		// 移动形状左移
+		break;
+	case 'S':
+		kprint_at("             ", 0, 3);
+		kprint_at("S Pressed", 0, 3);
+		// 加速下落
+		break;
+	case 'D':
+		kprint_at("             ", 0, 3);
+		kprint_at("D Pressed", 0, 3);
+		// 移动形状右移
+		break;
+	case ' ':
+		kprint_at("             ", 0, 3);
+		kprint_at("SPACE Pressed", 0, 3);
+		// 旋转形状
+		break;
+	
+	default:
+	    // 其他按键忽略
+		break;
+	}
+}
 
 // A S D  for moving the item
 // space for rotating 
 void tertris_control(uint8_t scancode) {
 	if(gd.manipulate_item != NULL) {
-
+		print_keyboard(scancode, -1, -1);
+		game_parsekey(scancode);
 	}
 }
 

@@ -27,17 +27,29 @@ const char sc_ascii[] = { '?', '?', '1', '2', '3', '4', '5', '6',
         'H', 'J', 'K', 'L', ';', '\'', '`', '?', '\\', 'Z', 'X', 'C', 'V', 
         'B', 'N', 'M', ',', '.', '/', '?', '?', '?', ' '};
 
+void print_keyboard(char scancode, int col, int row) {
+	if(scancode > SC_MAX) return;
+
+	char letter = get_letter(scancode);
+	char str[2] = {letter, '\0'};
+
+	if(col >= 0 && row >= 0) {
+		kprint_at(str, col, row);
+	} else {
+		kprint_at(str,0,2);
+	}
+}
+
 static void keyboard_callback(registers_t *regs) {
     /* The PIC leaves us the scancode in port 0x60 */
     uint8_t scancode = port_byte_in(0x60);
     
+	if (scancode > SC_MAX) return;
 	if (KEYBOARD_TERTRIS == 0x01) {
 		tertris_control(scancode);
-
 		return;
 	}
 
-	if (scancode > SC_MAX) return;
 	if (scancode == BACKSPACE) {
 		backspace(key_buffer);
 		kprint_backspace();
@@ -57,4 +69,9 @@ static void keyboard_callback(registers_t *regs) {
 
 void init_keyboard() {
    register_interrupt_handler(IRQ1, keyboard_callback); 
+}
+
+char get_letter(char scancode) {
+	if (scancode > SC_MAX) return '?';
+	return sc_ascii[(int)(scancode)];
 }
