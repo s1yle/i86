@@ -31,7 +31,7 @@ typedef struct {
 } shape;
 
 /* Function prototypes */
-void spawn_item(shape_type t,position *p);
+void spawn_item(shape_type t,position *p, shape *output_shape);
 void rotate_shape(shape *s, int clockwise);
 uint8_t get_width(shape_type t);
 

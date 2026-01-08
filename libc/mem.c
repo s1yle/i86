@@ -33,3 +33,13 @@ size_t kmalloc(size_t size, int align, size_t *phys_addr) {
     free_mem_addr += size; /* Remember to increment the pointer */
     return ret;
 }
+
+void kfree(void *ptr, uint32_t block_size) {
+    // simple mem cleaner
+    if(ptr == NULL) {
+        return;
+    }
+
+    // fill with 0x5a trash val
+    memory_set(ptr, 0x5a, block_size);
+}

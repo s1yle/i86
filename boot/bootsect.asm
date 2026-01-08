@@ -28,7 +28,7 @@ load_kernel:
 
     mov bx, KERNEL_OFFSET ; BX = 0x1000
                          ; ES:BX = 0x0000:0x1000 = 0x1000物理地址
-    mov dh, 32           ; 扇区数应基于内核实际大小，但这不是当前问题的核心
+    mov dh, 46
     mov dl, [BOOT_DRIVE]
     call disk_load
     ret

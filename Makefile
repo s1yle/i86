@@ -33,7 +33,7 @@ run: os-image.bin
 # Open the connection to qemu and load our kernel-object file with symbols
 debug: os-image.bin kernel.elf
 	qemu-system-i386 -s -fda os-image.bin &
-	gdb -ex "target remote localhost:1234" -ex "symbol-file kernel.elf" -ex "b tertris_game_init" -ex "display col row"
+	gdb -ex "target remote localhost:1234" -ex "symbol-file kernel.elf" -ex "b tertris_game_update" -ex "display col row"
 
 # Generic rules for wildcards
 # To make an object, always compile from its .c

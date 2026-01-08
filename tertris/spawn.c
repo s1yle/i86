@@ -6,6 +6,25 @@ void draw_square(position *p, int size);
 void draw_shape(shape *s);
 shape create_shape(shape_type type, int x, int y);
 
+void draw_sI(position *p);
+void draw_sJ(position *p);
+void draw_sL(position *p);
+void draw_sO(position *p);
+void draw_sS(position *p);
+void draw_sT(position *p);
+void draw_sZ(position *p);
+
+typedef void (*draw_shape_func_t)(position *p);
+draw_shape_func_t shape_drawers[SHAPE_COUNT] = {
+    draw_sI,  // 对应 SHAPE_I
+    draw_sJ,  // 对应 SHAPE_J
+    draw_sL,  // 对应 SHAPE_L
+    draw_sO,  // 对应 SHAPE_O
+    draw_sS,  // 对应 SHAPE_S
+    draw_sT,  // 对应 SHAPE_T
+    draw_sZ   // 对应 SHAPE_Z
+};
+
 /* Shape definitions - 4x4 grids for each shape type */
 static const int shapes[SHAPE_COUNT][SHAPE_GRID_HEIGHT][SHAPE_GRID_WIDTH] = {
     /* SHAPE_I */
@@ -58,7 +77,8 @@ static const int shapes[SHAPE_COUNT][SHAPE_GRID_HEIGHT][SHAPE_GRID_WIDTH] = {
         {0, 0, 0, 0}
     }
 };
-/*
+
+#ifdef FALSE
 uint8_t get_width(shape_type t) {
     int temp[4] = {-1, -1, -1, -1};
     uint8_t wid = 0;
@@ -74,8 +94,8 @@ uint8_t get_width(shape_type t) {
 
     return wid;
 }
-*/
-
+#else
+#endif
 
 uint8_t get_width(shape_type t) {
     uint8_t wid = 0;
@@ -93,23 +113,28 @@ uint8_t get_width(shape_type t) {
     return wid;
 }
 
+void draw_shape_by_type(shape_type type, position *p) {
+    if(type < SHAPE_I || type >= SHAPE_COUNT) {
+        return;
+    }
+    shape_drawers[type](p);
+}
 
-void spawn_item(shape_type t, position *p) {
+void spawn_item(shape_type t, position *p, shape *output_shape) {
     /* 创建副本，不修改原始坐标 */
     position adjusted_pos = *p;
-    
+    uint8_t wid = get_width(t);
     /* 计算可玩区域边界（避开边界墙） */
     int playable_left = width_min + 1;    /* 左墙内测 */
     int playable_right = width_max - 1;   /* 右墙内测 */
     
     /* 1. 处理x轴边界 */
-    int shape_right = adjusted_pos.x + 3;  /* 4列形状，索引0-3 */
+    int shape_right = adjusted_pos.x + (wid);  /* 4列形状，索引0-3 */
     int shape_left = adjusted_pos.x;
     
     /* 如果形状超出右边界，向左调整 */
     if (shape_right > playable_right) {
-        uint8_t wid = get_width(t);
-        adjusted_pos.x = playable_right - wid;
+        adjusted_pos.x = playable_right - (wid);
     }
     
     /* 如果形状超出左边界，向右调整 */
@@ -129,33 +154,9 @@ void spawn_item(shape_type t, position *p) {
         adjusted_pos.y = 0;
     }
 
-    /* 根据形状类型调用相应的绘制函数 */
-    switch (t) {
-        case SHAPE_T:
-            draw_sT(&adjusted_pos);
-            break;
-        case SHAPE_J:
-            draw_sJ(&adjusted_pos);
-            break;
-        case SHAPE_I:
-            draw_sI(&adjusted_pos);
-            break;
-        case SHAPE_O:
-            draw_sO(&adjusted_pos);
-            break;
-        case SHAPE_L:
-            draw_sL(&adjusted_pos);
-            break;
-        case SHAPE_S:
-            draw_sS(&adjusted_pos);
-            break;
-        case SHAPE_Z:
-            draw_sZ(&adjusted_pos);
-            break;
-        default:
-            /* 不应该到达这里，因为SHAPE_COUNT不是有效的形状类型 */
-            break;
-    }
+    draw_shape_by_type(t, &adjusted_pos);
+
+    *output_shape = (shape){t, 0, adjusted_pos};
 }
 
 void draw_sT(position *p) {

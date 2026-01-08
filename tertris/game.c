@@ -1,13 +1,16 @@
 #include "game.h"
 #include "../cpu/timer.h"
 #include "../libc/xorshift32.h"
+#include "../libc/mem.h"
+#include "test.h"
+
 
 int width_min = MAX_COLS/4;
 int width_max = (MAX_COLS/2*1.5);
 
-static game_data_t gd;
+static game_data_t gd = { .manipulate_item = NULL };
 void tertris_draw_border();
-static uint32_t *rand = NULL;
+static uint32_t rand_val = 0;
 static uint8_t tick = 0;
 
 void tertris_game_init() {
@@ -17,94 +20,64 @@ void tertris_game_init() {
 	// setting border and game region
 	clear_screen();
 	tertris_draw_border();
-	rand = prng_next();
+	rand_val = prng_next();
 
 	add_timer(1, tertris_game_update, 1);
+	// test_spawn_item();
 }
-
+#define game_update true
+#ifdef game_update
+static int i = 1;
 void tertris_game_update() {
 	tick++;
 
 	if(tick >= 50) {
 		// game update on every tick
-		rand = prng_next();
-		char str; int_to_ascii(rand,str);
+		rand_val = prng_next();
+		char str[16]; int_to_ascii(rand_val, str);
 		kprint_at(str,0,0);
 
 		if(gd.manipulate_item != NULL) {
 			// already spawned
+
+			kprint_at("0x000000",0,1);
+
 		} else if (gd.manipulate_item == NULL) {
 			// havnt spawned yet
+
 			position p; 
 			p.x = prng_next_mod(width_min, width_max);
 			p.y = 0;
 
 			uint8_t sindex = prng_next_mod(0, SHAPE_COUNT);
-			spawn_item((shape_type)sindex, &p);
+			// allocate memory for the new shape
+			gd.manipulate_item = (shape *)kmalloc(sizeof(shape), 0, NULL);
+			spawn_item((shape_type)sindex, &p, gd.manipulate_item);
 
-			char str; int_to_ascii(p.x, str);
-			kprint_at(&str,0,1);
+			char str2[16]; int_to_ascii(p.x, str2);
+			kprint_at(str2,0,0);
+
+			i++;
 		}
 
 		tick = 0;
 	}
 }
+#else
+#endif
 
+
+// A S D  for moving the item
+// space for rotating 
 void tertris_control(uint8_t scancode) {
+	if(gd.manipulate_item != NULL) {
 
+	}
 }
 
 void tertris_spawn() {
 	
 }
-
-void test_spawn_item() {
-	/* 测试边界检测功能 */
-	position p1 = { 110, 0 };
-	spawn_item(SHAPE_O, &p1);
-	
-	position p2 = { 110, 4 };
-	spawn_item(SHAPE_T, &p2);
-
-	position pp2 = { 110, 8 };
-	spawn_item(SHAPE_I, &pp2);
-	
-	position pp3 = { 110, 12 };
-	spawn_item(SHAPE_J, &pp3);
-	
-	position p3 = { 110, 16 };
-	spawn_item(SHAPE_L, &p3);
-	
-	position p4 = { 110, 20 };
-	spawn_item(SHAPE_Z, &p4);
-
-	position p5 = { 110, 24 };
-	spawn_item(SHAPE_S, &p5);
-
-	
-	/* 测试边界检测功能 */
-	position o1 = { 0, 0 };
-	spawn_item(SHAPE_O, &o1);
-	
-	position o2 = { 0, 4 };
-	spawn_item(SHAPE_T, &o2);
-
-	position o3 = { 0, 8 };
-	spawn_item(SHAPE_I, &o3);
-	
-	position o4 = { 0, 12 };
-	spawn_item(SHAPE_J, &o4);
-	
-	position o5 = { 0, 16 };
-	spawn_item(SHAPE_L, &o5);
-	
-	position o6 = { 0, 20 };
-	spawn_item(SHAPE_Z, &o6);
-
-	position o7 = { 0, 24 };
-	spawn_item(SHAPE_S, &o7);
-}
-
 
 void tertris_draw_border() {
 	int row;
